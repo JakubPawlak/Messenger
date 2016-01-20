@@ -137,25 +137,29 @@ public class Message {
     }
 
     // parsuje xml podany jako string ustawiajac odpowiednie zmienne
-    public void parseXMLAndSetValues(String input){
+    public void parseXml (String input){
         InputStream inputStream = null;
+        // tworzy strumien wejscia z wczytanego pliku xml w zmiennej String
         try {
             inputStream = new ByteArrayInputStream(input.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
+
         try {
             XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
             XmlPullParser messageParser = xmlFactoryObject.newPullParser();
             messageParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             messageParser.setInput(inputStream, null);
+            parseXmlAndSetValues(messageParser);
+            inputStream.close();
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    private void parseXML(XmlPullParser msgParser){
+    private void parseXmlAndSetValues(XmlPullParser msgParser){
         int event;
         String text = null;
         String name;
