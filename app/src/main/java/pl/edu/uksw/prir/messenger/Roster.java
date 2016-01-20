@@ -137,6 +137,7 @@ public class Roster {
 
     private void parseXML(XmlPullParser msgParser){
         int event;
+        int i = 0;
         String text = null;
         String name;
 
@@ -151,13 +152,11 @@ public class Roster {
                         break;
                     case XmlPullParser.END_TAG:
                         if (name.equals("item")){
-
+                            friendList.get(i).setJid(msgParser.getAttributeValue(null, "jid"));
+                            friendList.get(i).setName(msgParser.getAttributeValue(null, "name"));
+                            friendList.get(i).setSubscription(msgParser.getAttributeValue(null, "subscription"));
+                            i++;
                         }
-                        /*else if (name.equals("message")){
-                            setFrom(msgParser.getAttributeValue(null, "from"));
-                            setId(msgParser.getAttributeValue(null, "id"));
-                            setTo(msgParser.getAttributeValue(null, "to"));
-                        }*/
                         break;
                 }
                 event = msgParser.next();
