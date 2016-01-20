@@ -104,20 +104,27 @@ public class Roster {
         return null;
     }
 
-    public void writeXmlToFile(String data) throws FileNotFoundException{
+    private void writeXmlToFile(String data) throws FileNotFoundException{
         PrintWriter out = new PrintWriter("roster.xml");
         out.println(data);
         out.close();
     }
 
-    public String openXmlFromFile() throws FileNotFoundException {
+    private String openXmlFromFile() throws FileNotFoundException {
         String data = null;
         BufferedReader bufferedReader = new BufferedReader(new FileReader(NAME));
         data = new Scanner(new File(NAME)).useDelimiter("\\Z").next();
         return data;
     }
 
-    public void parseXMLAndSetValues(String input){
+    public void parseRosterXml(){
+        String input = null;
+        try {
+            input = openXmlFromFile();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         InputStream inputStream = null;
         try {
             inputStream = new ByteArrayInputStream(input.getBytes("UTF-8"));
@@ -127,15 +134,17 @@ public class Roster {
 
         try {
             XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
-            XmlPullParser messageParser = xmlFactoryObject.newPullParser();
-            messageParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            messageParser.setInput(inputStream, null);
+            XmlPullParser rosterParser = xmlFactoryObject.newPullParser();
+            rosterParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            rosterParser.setInput(inputStream, null);
+            parseXmlAndSetValues(rosterParser);
+            inputStream.close();
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    private void parseXML(XmlPullParser msgParser){
+    private void parseXmlAndSetValues(XmlPullParser msgParser){
         int event;
         int i = 0;
         String text = null;
@@ -169,7 +178,7 @@ public class Roster {
 
     public List<Friend> getRoster(){
         if(type.equals("get") && query.equals("jabber:ig:roster")){
-
+            parseRosterXml();
         }
         return friendList;
     }
