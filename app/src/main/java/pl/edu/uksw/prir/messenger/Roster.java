@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -32,7 +33,7 @@ import javax.xml.transform.stream.StreamResult;
 public class Roster {
 
     private final static String NAME = "roster.xml";
-    List<Friend> friendList;
+    public List<Friend> friendList = new ArrayList<Friend>();
     String to;
     String type;
     String query;
@@ -40,13 +41,10 @@ public class Roster {
     Roster(String from, String type, String query){
         this.to = from;
         this.type = type;
-        if (query.equals(null)){
-            query = "jabber:ig:roster";
-        }
-        else this.query = query;
+        this.query = query;
     }
 
-    public void rosterXmlString() throws FileNotFoundException {
+    public void initRoster() throws FileNotFoundException {
 
         StringBuffer xmlStr = new StringBuffer();
         xmlStr.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"+
@@ -54,13 +52,13 @@ public class Roster {
                 "to= \""+ this.to+"\"\n"+
                 "type= \""+ this.type+"\"\n"+
                 ">\n"+
-                "<query xmlns=\""+ this.query+"\"\n");
+                "<query xmlns=\""+ this.query+"\">\n");
         if (!friendList.isEmpty()){
             for (int i = 0; i < friendList.size(); i++){
                 xmlStr.append("<item jid=\"" + friendList.get(i).getJid() + "\"\n"+
                         "name = \"" + friendList.get(i).getName() + "\"\n"+
                         "subscription= \"" + friendList.get(i).getSubscription() + "\"\n"+
-                        "/>");
+                        "/>\n");
             }
         }
         xmlStr.append(
@@ -181,5 +179,10 @@ public class Roster {
             parseRosterXml();
         }
         return friendList;
+    }
+
+    public void addFriend(String jid, String name, String sub){
+        Friend buddy = new Friend(jid, name, sub);
+        friendList.add(buddy);
     }
 }
