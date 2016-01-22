@@ -43,14 +43,16 @@ public class Roster {
     private static String LOG_ROSTER = "ROSTER: ";
     private static String FILENAME = "roster.xml";
     public List<Friend> friendList = new ArrayList<Friend>();
+    private Context context;
     String to;
     String type;
     String query;
 
-    Roster(String from, String type, String query){
+    Roster(String from, String type, String query, Context context){
         this.to = from;
         this.type = type;
         this.query = query;
+        this.context = context;
     }
 
     public void initRoster() throws FileNotFoundException {
@@ -116,7 +118,7 @@ public class Roster {
 //        out.println(data);
 //        out.close();
         try{
-            FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
             fos.write(data.getBytes());
             fos.close();
         }
@@ -131,7 +133,7 @@ public class Roster {
 //        BufferedReader bufferedReader = new BufferedReader(new FileReader(NAME));
 //        data = new Scanner(new File(NAME)).useDelimiter("\\Z").next();
         try{
-            FileInputStream fis = openFileInput(FILENAME);
+            FileInputStream fis = context.openFileInput(FILENAME);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fis));
 
             String line = bufferedReader.readLine();
