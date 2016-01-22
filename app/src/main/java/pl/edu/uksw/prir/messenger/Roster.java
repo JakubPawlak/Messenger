@@ -1,16 +1,24 @@
 package pl.edu.uksw.prir.messenger;
 
+import android.content.Context;
+import android.util.Log;
+
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -32,7 +40,8 @@ import javax.xml.transform.stream.StreamResult;
  */
 public class Roster {
 
-    private final static String NAME = "roster.xml";
+    private static String LOG_ROSTER = "ROSTER: ";
+    private static String FILENAME = "roster.xml";
     public List<Friend> friendList = new ArrayList<Friend>();
     String to;
     String type;
@@ -102,16 +111,40 @@ public class Roster {
         return null;
     }
 
-    private void writeXmlToFile(String data) throws FileNotFoundException{
-        PrintWriter out = new PrintWriter("roster.xml");
-        out.println(data);
-        out.close();
+    private void writeXmlToFile(String data){
+//        PrintWriter out = new PrintWriter("roster.xml");
+//        out.println(data);
+//        out.close();
+        try{
+            FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            fos.write(data.getBytes());
+            fos.close();
+        }
+        catch (IOException ioe) {
+            Log.e(LOG_ROSTER, "Write file failed");
+        }
     }
 
     private String openXmlFromFile() throws FileNotFoundException {
+        ArrayList<String> lines = new ArrayList<String>();
         String data = null;
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(NAME));
-        data = new Scanner(new File(NAME)).useDelimiter("\\Z").next();
+//        BufferedReader bufferedReader = new BufferedReader(new FileReader(NAME));
+//        data = new Scanner(new File(NAME)).useDelimiter("\\Z").next();
+        try{
+            FileInputStream fis = openFileInput(FILENAME);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fis));
+
+            String line = bufferedReader.readLine();
+            while(line != null){
+                lines.add(line+"\n");
+                line = bufferedReader.readLine();
+            }
+            bufferedReader.close();
+            fis.close();
+        } catch (Exception e){
+            Log.e(LOG_ROSTER, "Read file failed");
+        }
+        data = lines.toString();
         return data;
     }
 
@@ -123,22 +156,27 @@ public class Roster {
             e.printStackTrace();
         }
 
-        InputStream inputStream = null;
-        try {
-            inputStream = new ByteArrayInputStream(input.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        if (!input.equals(null)) {
+            InputStream inputStream = null;
+            try {
+                inputStream = new ByteArrayInputStream(input.getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
 
-        try {
-            XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
-            XmlPullParser rosterParser = xmlFactoryObject.newPullParser();
-            rosterParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            rosterParser.setInput(inputStream, null);
-            parseXmlAndSetValues(rosterParser);
-            inputStream.close();
-        } catch (Exception e){
-            e.printStackTrace();
+            try {
+                XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
+                XmlPullParser rosterParser = xmlFactoryObject.newPullParser();
+                rosterParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+                rosterParser.setInput(inputStream, null);
+                parseXmlAndSetValues(rosterParser);
+                inputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            Log.d(LOG_ROSTER,"Empty roster.xml file");
         }
     }
 
